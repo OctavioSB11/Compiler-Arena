@@ -3,6 +3,8 @@
 Arena de batalha de robôs em que cada robô só luta depois de passar por uma cadeia real de compilação:
 código-fonte → léxico → sintático → semântico → IR → otimização → bytecode → VM → arena.
 
+> **Comece por aqui:** [`docs/GUIA-DO-PROJETO.md`](docs/GUIA-DO-PROJETO.md) define o que será feito, como, por quem e como trabalhar no GitHub.
+
 ## Estado
 
 | Etapa | Estado |
@@ -21,9 +23,9 @@ python -m src.cli examples/alpha.robot --tokens --ast
 
 ## Linguagem
 
-Tipos `int` e `bool`. Comandos: `move(n)` e `back(n)` (1 a 10), `rotate(g)` (-180 a 180), `scan()`, `fire(p)` (1 a 3).
+Tipos `int` e `bool`. Comandos: `move(n)` e `back(n)` (1 a 20), `rotate(g)` (-180 a 180), `scan()`, `fire(p)` (1 a 3).
 Sensores: `energy`, `position.x`, `position.y`, `enemy.visible`, `enemy.distance`, `enemy.direction`.
-A gramática completa está no docstring de `AnalisadorSintatico`. Passar de EBNF para `docs/gramatica.md` é a primeira tarefa da fase 0.
+A especificação completa está na seção 4 do guia. A gramática está no docstring de `AnalisadorSintatico` e deve virar `docs/gramatica.md`.
 
 ## Estrutura
 
