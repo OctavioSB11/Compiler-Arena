@@ -1,9 +1,9 @@
-# Compiler Arena
+﻿# Compiler Arena
 
 Arena de batalha de robôs em que cada robô só luta depois de passar por uma cadeia real de compilação:
 código-fonte → léxico → sintático → semântico → IR → otimização → bytecode → VM → arena.
 
-> **Comece por aqui:** [`docs/GUIA-DO-PROJETO.md`](docs/GUIA-DO-PROJETO.md) define o que será feito, como, por quem e como trabalhar no GitHub.
+> **Comece por aqui:** [`GUIA-DO-PROJETO.md`](GUIA-DO-PROJETO.md) define o que será feito, como, por quem e como trabalhar no GitHub.
 
 ## Estado
 
@@ -42,3 +42,4 @@ docs/           documentação técnica
 ## Regras
 
 Proibido executar o código do robô na linguagem hospedeira (`exec`, `eval`). A arena só recebe bytecode interpretado pela VM.
+
