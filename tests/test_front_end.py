@@ -5,7 +5,7 @@ import pytest
 
 from src.cli import compilar
 from src.compiler.lexer import AutomatoLexico
-from src.compiler.parser import ErroSintatico
+from src.compiler.parser import AnalisadorSintatico, ErroSintatico
 from src.compiler.tokens import ErroLexico
 
 EX = os.path.join(os.path.dirname(__file__), "..", "examples")
@@ -34,12 +34,13 @@ def test_erro_sintatico_aponta_token_seguinte():
 
 
 def test_exemplos_semanticos_sao_sintaticamente_validos():
-    compilar(ler("erro_semantico.robot"))
-    compilar(ler("otimizacao.robot"))
+    for nome in ("erro_semantico.robot", "otimizacao.robot"):
+        tokens = AutomatoLexico().analisar(ler(nome))
+        AnalisadorSintatico(tokens).analisar()
 
 
 def test_precedencia():
-    arvore = compilar("robot R { int x = 1 + 2 * 3 < 8 && !false; }")
+    arvore = compilar("robot R { bool x = 1 + 2 * 3 < 8 && !false; }")
     decl = arvore.filhos[0].filhos[0]
     assert decl.filhos[1].valor == "&&"
 
