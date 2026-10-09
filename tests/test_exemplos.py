@@ -11,7 +11,10 @@ def compilar_exemplo(nome):
     return compilar((EXEMPLOS / nome).read_text(encoding="utf-8"))
 
 
-@pytest.mark.parametrize("nome", ["alpha.robot", "otimizacao.robot"])
+VALIDOS = ["alpha.robot", "otimizacao.robot", "atirador.robot", "fugitivo.robot", "misto.robot"]
+
+
+@pytest.mark.parametrize("nome", VALIDOS)
 def test_robos_validos_passam_no_front_end(nome):
     r = compilar_exemplo(nome)
     assert r.ok and r.contexto.ast is not None
