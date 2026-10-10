@@ -8,7 +8,10 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from .ast_nodes import NoAST
+from .codegen import gerar_bytecode
+from .ir import gerar_ir
 from .lexer import AutomatoLexico
+from .optimizer import otimizar
 from .parser import AnalisadorSintatico
 from .tokens import ErroCompilacao, Token
 
@@ -37,15 +40,28 @@ def etapa_sintatica(ctx: Contexto) -> Contexto:
     ctx.ast = AnalisadorSintatico(ctx.tokens).analisar()
     return ctx
 
+def etapa_codigo_intermediario(ctx: Contexto) -> Contexto:
+    ctx.ir = gerar_ir(ctx.ast)
+    return ctx
+
+
+def etapa_otimizacao(ctx: Contexto) -> Contexto:
+    ctx.ir_otimizada = otimizar(ctx.ir)
+    return ctx
+
+
+def etapa_codigo_objeto(ctx: Contexto) -> Contexto:
+    ctx.bytecode = gerar_bytecode(ctx.ir_otimizada)
+    return ctx
 
 # (nome mostrado no painel, função da etapa ou None se ainda não existe)
 ETAPAS = [
     ("Análise Léxica", etapa_lexica),
     ("Análise Sintática", etapa_sintatica),
     ("Análise Semântica", None),
-    ("Código Intermediário", None),
-    ("Otimização", None),
-    ("Código Objeto", None),
+    ("Código Intermediário", etapa_codigo_intermediario),
+    ("Otimização", etapa_otimizacao),
+    ("Código Objeto", etapa_codigo_objeto),
 ]
 
 

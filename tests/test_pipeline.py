@@ -14,9 +14,17 @@ def test_programa_valido_passa_pelas_etapas_implementadas():
     assert r.ok and r.contexto.ast.valor == "Alpha"
 
 
-def test_etapas_futuras_aparecem_como_pendentes():
+def test_back_end_roda_depois_do_front_end():
     r = compilar(ROBO_OK)
-    assert status(r)[2:] == [PENDENTE] * 4
+    assert status(r)[3:] == [OK, OK, OK]
+    ctx = r.contexto
+    assert ctx.ir and ctx.ir_otimizada and ctx.bytecode
+    assert str(ctx.bytecode[-1]) == "HALT"
+
+
+def test_semantica_continua_pendente_e_robo_nao_fica_pronto():
+    r = compilar(ROBO_OK)
+    assert status(r)[2] == PENDENTE
     assert not r.pronto
 
 
