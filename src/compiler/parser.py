@@ -1,22 +1,23 @@
 from typing import List, Optional
 
 from .ast_nodes import NoAST
-from .tokens import Token
+from .tokens import ErroCompilacao, Token
 
 
-class ErroSintatico(Exception):
+class ErroSintatico(ErroCompilacao):
     """Erro de sintaxe com posição e expectativa."""
 
-    def __init__(self, mensagem: str, token: Optional[Token] = None):
-        self.mensagem = mensagem
+    def __init__(self, mensagem: str, token: Optional[Token] = None,
+                 linha: Optional[int] = None):
         self.token = token
         if token is not None:
             super().__init__(
-                f"Erro sintático na linha {token.linha}, coluna {token.coluna}: "
-                f"{mensagem}. Encontrado {token.classificacao} ({token.lexema!r})."
+                mensagem, token.linha, token.coluna,
+                texto=(f"Erro sintático na linha {token.linha}, coluna {token.coluna}: "
+                       f"{mensagem}. Encontrado {token.classificacao} ({token.lexema!r})."),
             )
         else:
-            super().__init__(f"Erro sintático: {mensagem}.")
+            super().__init__(mensagem, linha, texto=f"Erro sintático: {mensagem}.")
 
 
 class AnalisadorSintatico:
@@ -74,7 +75,8 @@ class AnalisadorSintatico:
             if self.tokens:
                 ultimo = self.tokens[-1]
                 raise ErroSintatico(
-                    f"fim do arquivo encontrado depois da linha {ultimo.linha}; esperado {esperado}")
+                    f"fim do arquivo encontrado depois da linha {ultimo.linha}; esperado {esperado}",
+                    linha=ultimo.linha)
             raise ErroSintatico(f"arquivo vazio; esperado {esperado}")
         raise ErroSintatico(f"esperado {esperado}", token)
 

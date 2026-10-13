@@ -1,17 +1,22 @@
-"""Uso: python -m src.cli arquivo.robot [--tokens] [--ast] [--symbols]
+"""Uso: python -m src.cli arquivo.robot [--tokens] [--ast] [--symbols] [--ir]
+                                       [--ir-opt] [--bytecode] [--painel]
 
-Cada etapa do compilador ganha uma flag à medida que for implementada
-(--ir, --ir-opt, --bytecode)."""
+Cada etapa do compilador ganha uma flag à medida que for implementada."""
 import sys
 
 from .compiler.ast_nodes import imprimir_ast
+from .compiler import pipeline
+from .compiler.codegen import formatar_bytecode, gerar_bytecode
+from .compiler.ir import formatar_ir, gerar_ir
 from .compiler.lexer import AutomatoLexico
-from .compiler.parser import AnalisadorSintatico, ErroSintatico
-from .compiler.semantic import AnalisadorSemantico, ErroSemantico
-from .compiler.tokens import ErroLexico
+from .compiler.optimizer import otimizar
+from .compiler.parser import AnalisadorSintatico
+from .compiler.semantic import AnalisadorSemantico
+from .compiler.tokens import ErroCompilacao
 
 
-def compilar(codigo: str, mostrar_tokens=False, mostrar_ast=False, mostrar_symbols=False):
+def compilar(codigo: str, mostrar_tokens=False, mostrar_ast=False, mostrar_symbols=False,
+             mostrar_ir=False, mostrar_ir_opt=False, mostrar_bytecode=False):
     lexer = AutomatoLexico()
     tokens = lexer.analisar(codigo)
     if mostrar_tokens:
@@ -26,6 +31,17 @@ def compilar(codigo: str, mostrar_tokens=False, mostrar_ast=False, mostrar_symbo
         for escopo in tabela._pilha:
             for nome, simbolo in escopo.simbolos.items():
                 print(f"{nome:<12} {simbolo.tipo:<6} linha {simbolo.linha_declaracao}")
+    ir = gerar_ir(arvore)
+    if mostrar_ir:
+        print("--- IR ---")
+        print(formatar_ir(ir))
+    ir_otimizada = otimizar(ir)
+    if mostrar_ir_opt:
+        print("--- IR otimizada ---")
+        print(formatar_ir(ir_otimizada))
+    if mostrar_bytecode:
+        print("--- Bytecode ---")
+        print(formatar_bytecode(gerar_bytecode(ir_otimizada), com_enderecos=True))
     return arvore
 
 
@@ -35,12 +51,17 @@ def main(argv):
         return 2
     with open(argv[1], encoding="utf-8") as f:
         codigo = f.read()
+    if "--painel" in argv:
+        resultado = pipeline.compilar(codigo)
+        print(pipeline.formatar_painel(resultado))
+        return 0 if resultado.ok else 1
     try:
-        compilar(codigo, "--tokens" in argv, "--ast" in argv, "--symbols" in argv)
-    except (ErroLexico, ErroSintatico, ErroSemantico) as e:
+        compilar(codigo, "--tokens" in argv, "--ast" in argv, "--symbols" in argv,
+                 "--ir" in argv, "--ir-opt" in argv, "--bytecode" in argv)
+    except ErroCompilacao as e:
         print(f"✗ {e}\nCOMPILAÇÃO INTERROMPIDA")
         return 1
-    print("✓ léxico  ✓ sintático  ✓ semântico")
+    print("✓ léxico  ✓ sintático  ✓ semântico  ✓ ir  ✓ otimização  ✓ bytecode")
     return 0
 
 
