@@ -2,6 +2,7 @@ from typing import Optional
 
 from .ast_nodes import NoAST
 from .symbols import TabelaDeSimbolos
+from .tokens import ErroCompilacao
 
 SENSORES = {
     "energy": "int",
@@ -26,11 +27,9 @@ OPERADORES_LOGICOS = {"&&", "||"}
 OPERADORES_UNARIOS = {"-unario", "!unario"}
 
 
-class ErroSemantico(Exception):
+class ErroSemantico(ErroCompilacao):
     def __init__(self, mensagem: str, linha: int):
-        self.mensagem = mensagem
-        self.linha = linha
-        super().__init__(f"Linha {linha}: {mensagem}")
+        super().__init__(mensagem, linha, texto=f"Linha {linha}: {mensagem}")
 
 
 def _valor_constante(no: NoAST) -> Optional[int]:
