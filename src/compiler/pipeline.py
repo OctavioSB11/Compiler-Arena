@@ -13,6 +13,8 @@ from .ir import gerar_ir
 from .lexer import AutomatoLexico
 from .optimizer import otimizar
 from .parser import AnalisadorSintatico
+from .semantic import AnalisadorSemantico
+from .symbols import TabelaDeSimbolos
 from .tokens import ErroCompilacao, Token
 
 OK, ERRO, PENDENTE, PULADA = "ok", "erro", "pendente", "pulada"
@@ -24,6 +26,7 @@ class Contexto:
     codigo: str
     tokens: Optional[List[Token]] = None
     ast: Optional[NoAST] = None
+    tabela_simbolos: Optional[TabelaDeSimbolos] = None
     ir: Optional[list] = None
     ir_otimizada: Optional[list] = None
     bytecode: Optional[list] = None
@@ -39,6 +42,11 @@ def etapa_lexica(ctx: Contexto) -> Contexto:
 def etapa_sintatica(ctx: Contexto) -> Contexto:
     ctx.ast = AnalisadorSintatico(ctx.tokens).analisar()
     return ctx
+
+def etapa_semantica(ctx: Contexto) -> Contexto:
+    ctx.tabela_simbolos = AnalisadorSemantico().analisar(ctx.ast)
+    return ctx
+
 
 def etapa_codigo_intermediario(ctx: Contexto) -> Contexto:
     ctx.ir = gerar_ir(ctx.ast)
@@ -58,7 +66,7 @@ def etapa_codigo_objeto(ctx: Contexto) -> Contexto:
 ETAPAS = [
     ("Análise Léxica", etapa_lexica),
     ("Análise Sintática", etapa_sintatica),
-    ("Análise Semântica", None),
+    ("Análise Semântica", etapa_semantica),
     ("Código Intermediário", etapa_codigo_intermediario),
     ("Otimização", etapa_otimizacao),
     ("Código Objeto", etapa_codigo_objeto),

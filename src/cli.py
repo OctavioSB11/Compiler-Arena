@@ -1,8 +1,7 @@
-"""Uso: python -m src.cli arquivo.robot [--tokens] [--ast] [--ir] [--ir-opt]
-                                       [--bytecode] [--painel]
+"""Uso: python -m src.cli arquivo.robot [--tokens] [--ast] [--symbols] [--ir]
+                                       [--ir-opt] [--bytecode] [--painel]
 
-Cada etapa do compilador ganha uma flag à medida que for implementada
-(falta --symbols, da análise semântica)."""
+Cada etapa do compilador ganha uma flag à medida que for implementada."""
 import sys
 
 from .compiler.ast_nodes import imprimir_ast
@@ -12,10 +11,11 @@ from .compiler.ir import formatar_ir, gerar_ir
 from .compiler.lexer import AutomatoLexico
 from .compiler.optimizer import otimizar
 from .compiler.parser import AnalisadorSintatico
+from .compiler.semantic import AnalisadorSemantico
 from .compiler.tokens import ErroCompilacao
 
 
-def compilar(codigo: str, mostrar_tokens=False, mostrar_ast=False,
+def compilar(codigo: str, mostrar_tokens=False, mostrar_ast=False, mostrar_symbols=False,
              mostrar_ir=False, mostrar_ir_opt=False, mostrar_bytecode=False):
     lexer = AutomatoLexico()
     tokens = lexer.analisar(codigo)
@@ -25,7 +25,12 @@ def compilar(codigo: str, mostrar_tokens=False, mostrar_ast=False,
     lexer.verificar()
     arvore = AnalisadorSintatico(tokens).analisar()
     if mostrar_ast:
-                        print(imprimir_ast(arvore))
+        print(imprimir_ast(arvore))
+    tabela = AnalisadorSemantico().analisar(arvore)
+    if mostrar_symbols:
+        for escopo in tabela._pilha:
+            for nome, simbolo in escopo.simbolos.items():
+                print(f"{nome:<12} {simbolo.tipo:<6} linha {simbolo.linha_declaracao}")
     ir = gerar_ir(arvore)
     if mostrar_ir:
         print("--- IR ---")
@@ -51,12 +56,12 @@ def main(argv):
         print(pipeline.formatar_painel(resultado))
         return 0 if resultado.ok else 1
     try:
-        compilar(codigo, "--tokens" in argv, "--ast" in argv, "--ir" in argv,
-                 "--ir-opt" in argv, "--bytecode" in argv)
+        compilar(codigo, "--tokens" in argv, "--ast" in argv, "--symbols" in argv,
+                 "--ir" in argv, "--ir-opt" in argv, "--bytecode" in argv)
     except ErroCompilacao as e:
         print(f"✗ {e}\nCOMPILAÇÃO INTERROMPIDA")
         return 1
-    print("✓ léxico  ✓ sintático  ✓ ir  ✓ otimização  ✓ bytecode")
+    print("✓ léxico  ✓ sintático  ✓ semântico  ✓ ir  ✓ otimização  ✓ bytecode")
     return 0
 
 

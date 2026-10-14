@@ -32,7 +32,7 @@ def test_erro_sintatico_para_na_etapa_sintatica():
     assert r.erro.linha == 3
 
 
-def test_erro_semantico_passa_no_front_end():
-    # a sintaxe está correta; o erro só será detectado pela Análise Semântica
+def test_erro_semantico_para_na_etapa_semantica():
     r = compilar_exemplo("erro_semantico.robot")
-    assert r.ok
+    assert r.erro.nome == "Análise Semântica"
+    assert r.erro.linha == 3

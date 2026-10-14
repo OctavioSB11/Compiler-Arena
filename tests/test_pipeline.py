@@ -1,5 +1,5 @@
 from src.compiler import pipeline
-from src.compiler.pipeline import ERRO, OK, PENDENTE, PULADA, compilar, formatar_painel
+from src.compiler.pipeline import ERRO, OK, PULADA, compilar, formatar_painel
 
 ROBO_OK = "robot Alpha { int x = 1; move(x); }"
 
@@ -22,10 +22,11 @@ def test_back_end_roda_depois_do_front_end():
     assert str(ctx.bytecode[-1]) == "HALT"
 
 
-def test_semantica_continua_pendente_e_robo_nao_fica_pronto():
+def test_semantica_roda_e_robo_fica_pronto():
     r = compilar(ROBO_OK)
-    assert status(r)[2] == PENDENTE
-    assert not r.pronto
+    assert status(r)[2] == OK
+    assert r.contexto.tabela_simbolos is not None
+    assert r.pronto
 
 
 def test_erro_lexico_interrompe_e_pula_o_resto():
@@ -46,8 +47,8 @@ def test_painel_de_programa_valido():
     painel = formatar_painel(compilar(ROBO_OK))
     assert "ROBÔ: ALPHA" in painel
     assert "✓ Análise Léxica" in painel and "✓ Análise Sintática" in painel
-    assert "- Análise Semântica (pendente)" in painel
-    assert "EM CONSTRUÇÃO" in painel
+    assert "✓ Análise Semântica" in painel
+    assert "STATUS: PRONTO PARA BATALHA" in painel
 
 
 def test_painel_de_erro_mostra_linha_e_interrompe():
