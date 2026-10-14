@@ -80,11 +80,11 @@ Veja uma AST com `python -m src.cli examples/alpha.robot --ast`.
 
 ## 4. Pipeline e painel
 
-`pipeline.py` guarda a lista `ETAPAS`: pares (nome, função). Léxico,
-sintático, código intermediário, otimização e código objeto já têm função.
-A análise semântica ainda é `None` e aparece como "pendente". Quem
-implementa uma etapa troca o `None` pela sua função, que recebe e devolve um
-`Contexto` (código, tokens, AST, IR, IR otimizada, bytecode).
+`pipeline.py` guarda a lista `ETAPAS`: pares (nome, função). As 6 etapas
+(léxico, sintático, semântica, código intermediário, otimização e código
+objeto) já têm função. Uma etapa que ainda não existir fica como `None` e
+aparece como "pendente". Cada função recebe e devolve um `Contexto`
+(código, tokens, AST, tabela de símbolos, IR, IR otimizada, bytecode).
 
 `compilar(codigo)` roda as etapas em ordem. Se uma levanta
 `ErroCompilacao`, ela é marcada com ✗, o painel mostra a linha e a mensagem
